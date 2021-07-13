@@ -1,24 +1,20 @@
-import Router from './Router';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Body from './components/Body';
+import Main from '../SPA/Main.js';
+import Router from '../SPA/Router.js';
+import Header from './components/Header.js';
+import paths from './routes.js';
 
-const paths = {
-    '/body': Body
-}
-
-const header = new Header(0);
-const router = new Router(1, paths);
-const footer = new Footer(2);
-
-export default class App {
+export default class App extends Main{
     constructor(el){
+        super();
         this.el = el;
+        this.header = new Header(this.el, 0);
+        this.router = new Router(this.el, 1, paths);
     }
-
     renderAll(){
-        header.render(this.el, this.el.children[header.position]);
-        router.render(this.el, this.el.children[router.position]);
-        footer.render(this.el, this.el.children[footer.position]);
+        this.header.render(this.header.template);
+        this.router.render();
+    }
+    suscribeAll(){
+        this.header.suscribe(this);
     }
 }

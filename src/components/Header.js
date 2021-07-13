@@ -1,24 +1,17 @@
-export default class Header {
+import Component from "../../SPA/Component.js";
 
-    constructor(position){
-        this.position = position;
-    }
+export default class Header extends Component{
 
-    render(el, before){
-        const header = document.createElement('header');
-        const  ul = document.createElement('ul');
-        for(let i = 0; i < 4; i++){
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            li.appendChild(a);
-            ul.appendChild(li);
-        }
-        header.appendChild(ul);
+    template = `
+        <nav>
+            <ul>
+                <li><a style="cursor: pointer;" :href="/#body">Body</a></li>
+                <li><a style="cursor: pointer" :href="/#lol">Lol</a></li>
+            </ul>
+        </nav>
+    `;
 
-        el.insertBefore(header, before);
-    }
-
-    clear(){
-        
+    constructor(rootElement, position){
+        super(rootElement, document.createElement('header'), position);
     }
 }

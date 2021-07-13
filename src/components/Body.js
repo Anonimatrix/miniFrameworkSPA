@@ -1,14 +1,12 @@
-export default class Body {
-    render(el, before){
-        let main = document.createElement('main');
-        let p = document.createElement('p');
-        p.innerText = "Momento Body"
+import Component from "../../SPA/Component.js";
 
-        main.appendChild(p);
-        el.instertBefore(main, before);
-    }
+export default class Body extends Component{
 
-    clear(){
-        
+    template = `
+            <p>Parrafo super genial</p>
+        `;
+
+    constructor(rootElement, position){
+        super(rootElement, document.createElement('main'), position);
     }
 }
