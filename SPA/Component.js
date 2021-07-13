@@ -7,13 +7,44 @@ export default class Component {
   }
 
   suscribe(observer) {
-    if(!this.observers.includes(observer)) this.observers.push(observer);
+    if (!this.observers.includes(observer)) this.observers.push(observer);
   }
 
   notifyToObservers(data) {
     this.observers.forEach((o) => {
       o.notify(data);
     });
+  }
+
+  handleEvent(template) {
+    //Global regex to detect all events attributes
+    const eventRegexG = new RegExp(/<([\w]+).*?:on([\w]+)?=\"(.*)?\".*?>/gi);
+    //Regex to destructuring in groups tags
+    const eventRegex = new RegExp(/<([\w]+).*?:on([\w]+)?=\"(.*)?\".*?>/i);
+    let tags = template.match(eventRegexG);
+    let matchesProcessed = [];
+    for (let i in tags) {
+      if (!matchesProcessed.includes(tags[i])) {
+        let groupTag = tags[i].match(eventRegex);
+        let typeTag = groupTag[1];
+        let tagsTypeTag = template.match(new RegExp(`<${typeTag}.*?>`, "g"));
+        for (let i in tagsTypeTag) {
+          if (eventRegex.test(tagsTypeTag[i])) {
+            let element = document.getElementsByTagName(typeTag)[i];
+            let groupTag = tagsTypeTag[i].match(eventRegex);
+            let event = groupTag[2].toLowerCase();
+            let func = groupTag[3];
+            if (typeof element["on" + event] != "undefined") {
+              element["on" + event] = () => {
+                this[func]();
+                this.notifyToObservers({ render: this });
+              };
+            }
+          }
+          matchesProcessed.push(tagsTypeTag[i]);
+        }
+      }
+    }
   }
 
   createInputs(template) {
@@ -26,8 +57,7 @@ export default class Component {
         let input = this.componentElement.getElementsByTagName("input")[i];
         input.onchange = () => {
           this[hash[1]] = input.value;
-          input.setAttribute('id', i);
-          this.notifyToObservers({render: this, focus: i});
+          this.notifyToObservers({ render: this });
         };
       }
     }
@@ -44,17 +74,21 @@ export default class Component {
         a.onclick = () => {
           const uri = location.hash;
           history.pushState({}, hash[1].substr(1), hash[1]);
-          this.notifyToObservers({beforeUri: uri});
+          this.notifyToObservers({ beforeUri: uri });
         };
       }
     }
   }
 
   render(template) {
-      this.componentElement.innerHTML = template;
-      this.rootElement.insertBefore(this.componentElement, this.rootElement.children[this.position]);
-      this.createLinks(template);
-      this.createInputs(template);
+    this.componentElement.innerHTML = template;
+    this.rootElement.insertBefore(
+      this.componentElement,
+      this.rootElement.children[this.position]
+    );
+    this.createLinks(template);
+    this.createInputs(template);
+    this.handleEvent(template);
   }
 
   clear() {
