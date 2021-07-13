@@ -1,17 +1,19 @@
 import Component from "../../SPA/Component.js";
 
-export default class Header extends Component{
+export default class Header extends Component {
+  createTemplate() {
+    let template = `
+            <nav>
+                <ul class="header__links-container">
+                    <li class="header__link-container"><a class="header__link" :href="/#body">Body</a></li>
+                    <li class="header__link-container"><a class="header__link" :href="/#lol">Lol</a></li>
+                </ul>
+            </nav>
+        `;
+    return template;
+  }
 
-    template = `
-        <nav>
-            <ul>
-                <li><a style="cursor: pointer;" :href="/#body">Body</a></li>
-                <li><a style="cursor: pointer" :href="/#lol">Lol</a></li>
-            </ul>
-        </nav>
-    `;
-
-    constructor(rootElement, position){
-        super(rootElement, document.createElement('header'), position);
-    }
+  constructor(rootElement, position) {
+    super(rootElement, document.createElement("header"), position);
+  }
 }

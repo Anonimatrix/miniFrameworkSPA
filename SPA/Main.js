@@ -13,10 +13,14 @@ export default class Main {
         this.suscribeAll();
     }
 
-    notify(options){
-        if(options.type === "link"){
-            this.router.clear(options.beforeUri);
+    notify(data){
+        if(data.beforeUri){
+            this.router.clear(data.beforeUri);
             this.router.render();
+        }
+        if(data.render){
+            this.render.clear();
+            this.render.render();
         }
     }
 }

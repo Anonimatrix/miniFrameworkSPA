@@ -7,19 +7,36 @@ export default class Component {
   }
 
   suscribe(observer) {
-    this.observers.push(observer);
+    if(!this.observers.includes(observer)) this.observers.push(observer);
   }
 
-  notifyToObservers(uri) {
+  notifyToObservers(data) {
     this.observers.forEach((o) => {
-      o.notify({ type: "link", beforeUri: uri });
+      o.notify(data);
     });
   }
 
-  createLinks() {
+  createInputs(template) {
+    const inputRegex = new RegExp(/<input.*?\/?>/g);
+    const inputModel = new RegExp(/:model="(.*?)"/);
+    let inputs = template.match(inputRegex);
+    for (const i in inputs) {
+      let hash = inputs[i].match(inputModel);
+      if (hash && hash[1]) {
+        let input = this.componentElement.getElementsByTagName("input")[i];
+        input.onchange = () => {
+          this[hash[1]] = input.value;
+          input.setAttribute('id', i);
+          this.notifyToObservers({render: this, focus: i});
+        };
+      }
+    }
+  }
+
+  createLinks(template) {
     const aRegex = new RegExp(/<a.*?>.*<\/a>/g);
     const aRoute = new RegExp(/:href="(.*?)"/);
-    let links = this.template.match(aRegex);
+    let links = template.match(aRegex);
     for (const i in links) {
       let hash = links[i].match(aRoute);
       if (hash && hash[1]) {
@@ -27,7 +44,7 @@ export default class Component {
         a.onclick = () => {
           const uri = location.hash;
           history.pushState({}, hash[1].substr(1), hash[1]);
-          this.notifyToObservers(uri);
+          this.notifyToObservers({beforeUri: uri});
         };
       }
     }
@@ -36,7 +53,8 @@ export default class Component {
   render(template) {
       this.componentElement.innerHTML = template;
       this.rootElement.insertBefore(this.componentElement, this.rootElement.children[this.position]);
-      this.createLinks();
+      this.createLinks(template);
+      this.createInputs(template);
   }
 
   clear() {

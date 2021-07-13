@@ -1,12 +1,19 @@
 import Component from "../../SPA/Component.js";
 
-export default class Body extends Component{
+export default class Body extends Component {
+  input = "Input reactivo";
 
-    template = `
-            <p>Parrafo super genial</p>
-        `;
+  createTemplate() {
+    let template = `
+        <p>${this.input}</p>
+        <input type="text" :model="input" value="${this.input}" />
+    `;
+    return template;
+  }
 
-    constructor(rootElement, position){
-        super(rootElement, document.createElement('main'), position);
-    }
+  constructor(rootElement, position) {
+    const main = document.createElement("main");
+    main.setAttribute("id", "body");
+    super(rootElement, main, position);
+  }
 }
