@@ -16,8 +16,8 @@ export default class Body extends Component {
     let template = `
         <p>${this.input}</p>
         <input type="text" :model="input" value="${this.input}" />
-        <button :onClick="click">No le des click jeje</button>
-        <button :onClick="click2">Lolardo games</button>
+        <button :onClick="click" type="button">No le des click jeje</button>
+        <button :onClick="click2s">Lolardo games</button>
         <p>${this.textoReactivo}</p>
     `;
     return template;

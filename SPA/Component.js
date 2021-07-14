@@ -16,11 +16,21 @@ export default class Component {
     });
   }
 
+  clearTemplate(template){
+    const inputModel = new RegExp(/(<input.*?) :model="(.*?)"(.*?\/?>)/gi);
+    const eventRegexG = new RegExp(/(<([\w]+).*?) :on([\w]+)?=\".*?\"(.*?>)/gi);
+    const aRegex = new RegExp(/(<a.*?) :href="(.*?)"(.*?>)/gi);
+    let newTemplate = template.replace(inputModel, '$1' + '$3');
+    newTemplate = newTemplate.replace(eventRegexG, '$1' + '$4');
+    newTemplate = newTemplate.replace(aRegex, '$1' + '$3');
+    return newTemplate;
+  }
+
   handleEvent(template) {
     //Global regex to detect all events attributes
-    const eventRegexG = new RegExp(/<([\w]+).*?:on([\w]+)?=\"(.*)?\".*?>/gi);
+    const eventRegexG = new RegExp(/<([\w]+).*?:on([\w]+?)=\"(.*?)\".*?>/gi);
     //Regex to destructuring in groups tags
-    const eventRegex = new RegExp(/<([\w]+).*?:on([\w]+)?=\"(.*)?\".*?>/i);
+    const eventRegex = new RegExp(/<([\w]+).*?:on([\w]+?)=\"(.*?)\".*?>/i);
     let tags = template.match(eventRegexG);
     let matchesProcessed = [];
     for (let i in tags) {
@@ -34,11 +44,13 @@ export default class Component {
             let groupTag = tagsTypeTag[i].match(eventRegex);
             let event = groupTag[2].toLowerCase();
             let func = groupTag[3];
-            if (typeof element["on" + event] != "undefined") {
+            if (element && this[func] && typeof element["on" + event] != "undefined") {
               element["on" + event] = () => {
                 this[func]();
                 this.notifyToObservers({ render: this });
               };
+            }else{
+              console.warn(tagsTypeTag[i] + " Elemento inexistente, evento inexistente o funcion inexistente en", this);
             }
           }
           matchesProcessed.push(tagsTypeTag[i]);
@@ -81,7 +93,8 @@ export default class Component {
   }
 
   render(template) {
-    this.componentElement.innerHTML = template;
+    let cleanTemplate = this.clearTemplate(template);
+    this.componentElement.innerHTML = cleanTemplate;
     this.rootElement.insertBefore(
       this.componentElement,
       this.rootElement.children[this.position]
